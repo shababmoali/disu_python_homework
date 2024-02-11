@@ -11,14 +11,15 @@ You could do this in Python itself, with a for loop, and t0 = time(); ...do stuf
 """
 
 import time
+import logging
 
 import asyncio
-from pprint import pprint
-
 import aiofiles
 
 from collections import defaultdict
 from typing import DefaultDict
+
+log = logging.getLogger(__name__)
 
 """
 Anyway, I would therefore suggest the following steps for this homework (most are very quick):
@@ -35,8 +36,8 @@ SAMPLING_EVENTS = range(NUM_EVENTS)
 IO_ITERATIONS_SERIES = [0, 10, 100, 1000, 10000]
 
 
-def pretty_print_result(runtime_table):
-    """print contents of runtime mappings"""
+def pretty_print_result(header, runtime_table):
+    """print aggregated contents of runtime mappings"""
     io_iterations_times_sums = defaultdict(int)
     for event in SAMPLING_EVENTS:
         for io_iter in IO_ITERATIONS_SERIES:
@@ -46,21 +47,34 @@ def pretty_print_result(runtime_table):
     for io_iter in IO_ITERATIONS_SERIES:
         io_iterations_times_averages[io_iter] = io_iterations_times_sums[io_iter] / NUM_EVENTS
 
-    print("summary:", dict(runtime_table))
-    # pprint(io_iterations_times_sums)  # debug
-    print("averages:", dict(io_iterations_times_averages))
+    log.debug("summary:", dict(runtime_table))
+    log.debug(io_iterations_times_sums)
 
-async def read_async():
-    start_time = time.perf_counter_ns()
-    asnc = ""
-    for _ in IO_ITERATIONS_SERIES:
-        async with aiofiles.open('t8_shakespeare.txt') as f:
-            asnc += await f.read()
-    end_time = time.perf_counter_ns()
-    print(f"ASync Execution time: {end_time - start_time} nano-seconds")
+    print(header)
+    print(f"{'Iterations':<12}: Average Time (_milli_seconds)")
+    for io_iter in IO_ITERATIONS_SERIES:
+        print(f"{io_iter:<12}: {io_iterations_times_averages[io_iter]*10**-6:.2f}")
 
 
-def read_sync():
+async def read_async() -> DefaultDict[int, DefaultDict[int, int]]:
+    result = defaultdict(defaultdict)
+    for event in SAMPLING_EVENTS:
+        for iters in IO_ITERATIONS_SERIES:
+            start_time = time.perf_counter_ns()
+            for _ in range(iters):
+                async with aiofiles.open('t8_shakespeare.txt') as f:
+                    await f.read()
+            end_time = time.perf_counter_ns()
+            result[event][iters] = end_time - start_time
+    pretty_print_result(
+        "ASync --",
+        result
+    )
+
+    return result
+
+
+def read_sync() -> DefaultDict[int, DefaultDict[int, int]]:
     result = defaultdict(defaultdict)
     for event in SAMPLING_EVENTS:
         for iters in IO_ITERATIONS_SERIES:
@@ -70,17 +84,18 @@ def read_sync():
                     f.read()
             end_time = time.perf_counter_ns()
             result[event][iters] = end_time - start_time
-    pretty_print_result(result)
+    pretty_print_result(
+        "Sync -- ",
+        result
+    )
 
     return result
 
 
-async def main():
-    # await read_async()
-    read_sync()
-
 # Run the async main function
-# asyncio.run(main())
+asyncio.run(
+    read_async()
+)
 
+# Run sync
 read_sync()
-print('end script')
