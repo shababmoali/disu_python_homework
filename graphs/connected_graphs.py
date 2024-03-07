@@ -1,6 +1,6 @@
 from typing import Any
 
-# Graph 0:
+# Graph 0: Basic tree
 #    A -- B
 #    |    |
 #    C    D -- E
@@ -24,7 +24,7 @@ g_am: list[list[Any]] = [
     [0, 0, 0, 0, 0]
 ]
 
-# Graph 1:
+# Graph 1: Slightly more complicated tree, + 1 lead node
 #    A -- B
 #    |    |
 #    C    D -- E
@@ -42,7 +42,7 @@ g_al_1: dict[Any, list[Any]] = {
     'F':[]
 }
 
-# Graph 2:
+# Graph 2: simple cycle
 #    A -- B
 #    |    |
 #    C -- D
@@ -57,7 +57,7 @@ g_al_2: dict[Any, list[Any]] = {
 }
 
 
-# Graph 3:
+# Graph 3: graph with multiple cycles, and paths
 #    A -- B-----
 #    |    |    |
 #    C    D -- E
@@ -65,7 +65,7 @@ g_al_2: dict[Any, list[Any]] = {
 #    |---------F
 
 
-g_al_3 = {
+g_al_3: dict[Any, list[Any]] = {
     'A': ['B', 'C'],
     'B': ['A', 'D', 'E'],
     'C': ['A', 'F'],
