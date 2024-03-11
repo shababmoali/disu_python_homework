@@ -1,6 +1,6 @@
 import heapq
 
-from graphs.directed_weighted_graphs import g_dw_0
+from graphs.directed_weighted_graphs import g_dw_0, g_dw_3
 
 
 def _relax(delta_v, delta_u, weight_u_v):
@@ -36,25 +36,25 @@ def dijkstra(graph, start):
         Add v to S
         d[v] c[v]
     """
-    vertex_distances_map = {v: float('inf') for v in graph}
-    vertex_to_predecessor_map = {v: None for v in graph}  # map to reconstruct the single shortest path
+    vertex_distance_map = {v: float('inf') for v in graph}
+    vertex_predecessor_map = {v: None for v in graph}  # map to reconstruct the single shortest path
 
-    vertex_distances_map[start] = 0
-    pq = [(start, vertex_distances_map[start])]
+    vertex_distance_map[start] = 0
+    pq = [(start, vertex_distance_map[start])]
 
     while pq:
         vertex, distance = heapq.heappop(pq)
 
         for neighbor, weight in graph[vertex]:
             # relax
-            ssp_cost = vertex_distances_map[vertex] + weight
-            if ssp_cost < vertex_distances_map[neighbor]:
-                vertex_distances_map[neighbor] = ssp_cost
-                vertex_to_predecessor_map[neighbor] = vertex
+            ssp_cost = vertex_distance_map[vertex] + weight
+            if ssp_cost < vertex_distance_map[neighbor]:
+                vertex_distance_map[neighbor] = ssp_cost
+                vertex_predecessor_map[neighbor] = vertex
 
                 heapq.heappush(pq, (neighbor, ssp_cost))  # insert next to pq
 
-    return vertex_to_predecessor_map, vertex_distances_map
+    return vertex_predecessor_map, vertex_distance_map
 
 
 # Graph 0:
@@ -69,7 +69,21 @@ assert 'A' == sp_0a_path_map['D']
 assert 4 == sp_0a_distances_map['D']
 
 sp_0b_path_map, sp_0b_distances_map  = dijkstra(g_dw_0, 'B')
-print(sp_0b_path_map, sp_0b_distances_map, sep='\n')
 assert float('inf') == sp_0b_distances_map['A']
 assert None == sp_0b_path_map['A']
 assert 'D' == sp_0b_path_map['C']
+
+
+# Graph 3:
+#    A --2--> B
+#    |\      / \
+#    3 1    3   4
+#    |  \  /     \
+#    V    V       V
+#    D<-2-C--2---> E---3--> F
+sp_3a_path_map, sp_3a_distances_map  = dijkstra(g_dw_3, 'A')
+assert 'A' == sp_3a_path_map['C']
+assert 'A' == sp_3a_path_map['D']
+
+assert 3 == sp_3a_distances_map['D']
+assert 3 == sp_3a_distances_map['E']
