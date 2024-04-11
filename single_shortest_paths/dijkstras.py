@@ -1,6 +1,6 @@
 import heapq
 
-from graphs.directed_weighted_graphs import g_dw_0, g_dw_3
+from graphs.directed_weighted_graphs import g_dw_0, g_dw_3, g_dw_5_with_negative_cycle
 
 
 def _relax(delta_v, delta_u, weight_u_v):
@@ -64,14 +64,14 @@ def dijkstra(graph, start):
 #    |    \   |
 #    V      V V
 #    C <--1-- D
-sp_0a_path_map, sp_0a_distances_map  = dijkstra(g_dw_0, 'A')
-assert 'A' == sp_0a_path_map['D']
-assert 4 == sp_0a_distances_map['D']
+dijk_sp_0a_path_map, dijk_sp_0a_distances_map = dijkstra(g_dw_0, 'A')
+assert 'A' == dijk_sp_0a_path_map['D']
+assert 4 == dijk_sp_0a_distances_map['D']
 
-sp_0b_path_map, sp_0b_distances_map  = dijkstra(g_dw_0, 'B')
-assert float('inf') == sp_0b_distances_map['A']
-assert None == sp_0b_path_map['A']
-assert 'D' == sp_0b_path_map['C']
+dijk_sp_0b_path_map, dijk_sp_0b_distances_map = dijkstra(g_dw_0, 'B')
+assert float('inf') == dijk_sp_0b_distances_map['A']
+assert dijk_sp_0b_path_map['A'] is None
+assert 'D' == dijk_sp_0b_path_map['C']
 
 
 # Graph 3:
@@ -81,9 +81,28 @@ assert 'D' == sp_0b_path_map['C']
 #    |  \  /     \
 #    V    V       V
 #    D<-2-C--2---> E---3--> F
-sp_3a_path_map, sp_3a_distances_map  = dijkstra(g_dw_3, 'A')
-assert 'A' == sp_3a_path_map['C']
-assert 'A' == sp_3a_path_map['D']
+dijk_sp_3a_path_map, dijk_sp_3a_distances_map = dijkstra(g_dw_3, 'A')
+assert 'A' == dijk_sp_3a_path_map['C']
+assert 'A' == dijk_sp_3a_path_map['D']
 
-assert 3 == sp_3a_distances_map['D']
-assert 3 == sp_3a_distances_map['E']
+assert 3 == dijk_sp_3a_distances_map['D']
+assert 3 == dijk_sp_3a_distances_map['E']
+
+
+# Graph 3:
+#    A --4--> B <---------
+#     \      / \          |
+#      3    -2  2         |
+#       \  /     \        |
+#         V       V       |
+#         C--1---> D      3
+#         |               |
+#        -5               |
+#         |               |
+#         V               |
+#         E---------------
+#
+# Dijkstra's is a greedy algorithm, where relaxing on the neighbour will push neighbour (v) to the priority queue (PQ)
+# If a negative edge weight cycle is reachable from the source, the shortest path distances in the negative weight cycle
+# are ever reducing leading to an infinite loop
+# dijk_sp_0a_path_map, dijk_sp_0a_distances_map = dijkstra(g_dw_5_with_negative_cycle, 'A')
