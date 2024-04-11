@@ -90,6 +90,6 @@ def prim(graph):
 
     return A
 
+
 minimum_spanning_tree = prim(graph)
 print(minimum_spanning_tree)
-

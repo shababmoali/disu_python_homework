@@ -73,4 +73,3 @@ g_al_3: dict[Any, list[Any]] = {
     'E': ['B', 'F'],
     'F': ['C', 'E']
 }
-
